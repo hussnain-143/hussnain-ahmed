@@ -1,3 +1,68 @@
+<?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'vendor/autoload.php'; 
+
+$msg = "";
+$alertClass = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $name = htmlspecialchars($_POST["name"]);
+    $email = htmlspecialchars($_POST["email"]);
+    $message = nl2br(htmlspecialchars($_POST["message"])); 
+
+    $mail = new PHPMailer(true);
+
+    try {
+        // SMTP Configuration
+        $mail->isSMTP();
+        $mail->Host = 'smtp.gmail.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'hussnainahmed143ha@gmail.com';
+        $mail->Password = 'mnhr kyop kdon cpse'; 
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port = 587;
+
+        // Email Headers
+        $mail->setFrom('hussnainahmed143ha@gmail.com', 'Portfolio'); 
+        $mail->addReplyTo($email, $name); 
+        $mail->addAddress('hussnainahmed143ha@gmail.com'); 
+
+        // Email Content
+        $mail->Subject = " New Portfolio Message Form $name";
+        $mail->isHTML(true);
+        $mail->Body = "
+            <h3>Portfolio Message</h3>
+            <p><strong>Name:</strong> $name</p>
+            <p><strong>Email:</strong> <a href='mailto:$email'>$email</a></p>
+            <p><strong>Message:</strong></p>
+            <p>$message</p>
+            <hr>
+            <p style='color:gray;'>This message was sent from your website contact form.</p>
+        ";
+
+        // Send Email
+        if($mail->send()){
+            $msg = "Your message has been sent successfully.";
+            $alertClass = "alert-success";
+        }
+        else{
+            $msg = "Error sending message. Please try again.";
+            $alertClass = "alert-danger";
+            }
+
+    } catch (Exception $e) {
+        $msg = "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        $alertClass = "alert-danger";
+
+    }
+}
+?>
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -315,7 +380,19 @@
     <section id="contact" class="contact-section">
         <div class="container">
             <h2 class="section-title">Get in <span>Touch</span></h2>
-            <form action="send_email.php" method="post" enctype="text/plain">
+            <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+                <?php
+                if ($msg != '') {
+                    ?>
+                    <div class="alert <?= $alertClass?>" id="alertBox" role="alert" >
+                        <h5>
+                            <?= $msg ?>
+
+                        </h5>
+                    </div>
+                    <?php
+                }
+                ?>
                 <div class="input-group">
                     <input type="text" name="name" placeholder="Your Name" required>
                 </div>

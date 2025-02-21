@@ -91,4 +91,15 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     });
+
+    // Auto-hide alert after 5 seconds
+    setTimeout(function() {
+        let alertBox = document.getElementById('alertBox');
+        if (alertBox) {
+            alertBox.classList.add('fade');
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 500);
+        }
+    }, 5000);
 });
